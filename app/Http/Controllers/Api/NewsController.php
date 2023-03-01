@@ -3,89 +3,83 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\News;
 use Illuminate\Http\Request;
 use App\Traits\Uploader;
+use App\Http\Resources\NewsResource;
+use App\Models\NewsLog;
+use App\Events\NewsLogs;
+use App\Http\Requests\NewsRequest;
+use App\Repositories\NewsRepository;
 
 class NewsController extends Controller
 {
     use Uploader;
 
+    private $newsRepository;
+
+    public function __construct(NewsRepository $newsRepository)
+    {
+        $this->newsRepository = $newsRepository;
+    }
+
     public function index(Request $request)
     {
-        $page = $request->input('page', 1);
-        $take = $request->input('take', 10);
+        return NewsResource::collection($this->newsRepository->getPaginatedNews($request));
+    }
 
-        $news = News::paginate($take, ['*'], 'page', $page);
+    public function show($id)
+    {
+        $news = $this->newsRepository->getDetailNews($id);
 
-        return response()->json($news);
+        if (!$news) {
+            return response()->json(['message' => 'News not found'], 404);
+        }
+
+        return new NewsResource($news);
     }
     
-    public function create(Request $request)
+    public function store(NewsRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'body' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-        
-        $news = new News();
-        $news->user_id = $request->user()->id; // set the authenticated user's ID as the news creator
-        $news->title = $validatedData['title'];
-        $news->body = $validatedData['body'];
-        
+        $validatedData = $request->validated();
+
+        $data = [
+            'user_id' => $request->user()->id,
+            'title' => $validatedData['title'],
+            'body' => $validatedData['body']
+        ];
+
         if ($request->hasFile('image')) {
-            $images = $this->uploader($request->file('image'),'news');
-            $news->image_path = $this->uploaded_image($images);
+            $images = $this->uploader($request->file('image'), 'news');
+            $data['image_path'] = $this->uploaded_image($images);
         }
+
+        $news = $this->newsRepository->createNews($data);
         
-        $news->save();
+        NewsLogs::dispatch($news->id, $request->user()->id, NewsLog::NEWS_CREATED);
         
-        // event(new NewsCreated($news)); // fire the NewsCreated event
-        
-        return response()->json([
-            'message' => 'News created successfully.',
-            'news' => $news,
-        ], 201);
+        return new NewsResource($news);
     }
     
-    public function update(Request $request, $id)
+    public function update(NewsRequest $request, $id)
     {
-        $news = News::findOrFail($id);
+        $validatedData = $request->validated();
+        $news = $this->newsRepository->updateNews($id, $validatedData);
 
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'body' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-        
-        $news = new News();
-        $news->title = $validatedData['title'];
-        $news->body = $validatedData['body'];
-        
-        if ($request->hasFile('image')) {
-            $images = $this->uploader($request->file('image'),'news');
-            $news->image_path = $this->uploaded_image($images);
+        if (empty($news)) {
+            return response()->json([
+                'message' => 'News not found',
+            ], 404);
         }
         
-        $news->save();
+        NewsLogs::dispatch($news->id, $request->user()->id, NewsLog::NEWS_UPDATED);
         
-        // event(new NewsCreated($news)); // fire the NewsCreated event
-        
-        return response()->json([
-            'message' => 'News created successfully.',
-            'news' => $news,
-        ], 201);
+        return new NewsResource($news);
     }
 
     public function destroy(Request $request, $id)
     {
-        $news = News::findOrFail($id);
-        
-        if (!$request->user()->is_admin || $request->user()->id !== $news->user_id) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
+        $news = $this->newsRepository->getById($id);
+        NewsLogs::dispatch($news->id, $request->user()->id, NewsLog::NEWS_UPDATED);
         $news->delete();
 
         return response()->json(['message' => 'News deleted successfully'], 200);

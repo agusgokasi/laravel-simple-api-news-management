@@ -10,6 +10,11 @@ use App\Models\News;
 class NewsLog extends Model
 {
     use HasFactory;
+
+    const NEWS_CREATED = 'create';
+    const NEWS_UPDATED = 'update';
+    const NEWS_DELETED = 'delete';
+
     protected $table = 'news_logs';
 
     protected $fillable = [

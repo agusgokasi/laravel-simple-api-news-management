@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +20,19 @@ use App\Http\Controllers\Api\NewsController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/news', [NewsController::class, 'index']);
+Route::get('/news/{id}', [NewsController::class, 'show']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::middleware(['isAdmin'])->group(function () {
-        Route::post('/news/post', [NewsController::class, 'create']);
-        Route::put('/news/{news}', [NewsController::class, 'update']);
-    Route::delete('/news/{news}', [NewsController::class, 'destroy']);
+        Route::post('/news/post', [NewsController::class, 'store']);
+        Route::put('/news/{id}', [NewsController::class, 'update']);
+        Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+    });
+
+    Route::middleware(['isNotAdmin'])->group(function () {
+        Route::post('/news/{news}/comment', [CommentController::class, 'store']);
     });
 });
 
