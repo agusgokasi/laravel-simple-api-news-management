@@ -8,6 +8,8 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Event;
 use App\Events\NewsLogs;
 use App\Listeners\storeNewsLogs;
+use App\Events\CreateComment;
+use App\Listeners\storeCreateComment;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         NewsLogs::class => [
             storeNewsLogs::class,
+        ],
+        CreateComment::class => [
+            storeCreateComment::class,
         ],
     ];
 

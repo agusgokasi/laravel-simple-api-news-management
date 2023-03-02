@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\NewsLogs;
+use App\Events\CreateComment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Models\NewsLog;
+use App\Models\Comment;
 
-class storeNewsLogs implements ShouldQueue
+class storeCreateComment implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -22,15 +22,15 @@ class storeNewsLogs implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  \App\Events\NewsLogs  $event
+     * @param  \App\Events\CreateComment  $event
      * @return void
      */
-    public function handle(NewsLogs $event)
+    public function handle(CreateComment $event)
     {
-        NewsLog::create([
-            'news_id' => $event->news,
+        Comment::create([
             'user_id' => $event->user,
-            'action' => $event->type,
+            'news_id' => $event->news,
+            'body' => $event->body,
         ]);
     }
 }
