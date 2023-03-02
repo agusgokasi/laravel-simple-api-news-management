@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\NewsLog;
 
-class storeNewsLogs implements ShouldQueue
+class storeNewsLogs
 {
     /**
      * Create the event listener.
