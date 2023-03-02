@@ -11,7 +11,7 @@
 9. Run ```php artisan passport:install```
 10. Run ```php artisan storage:link```
 11. Run ```php artisan serve```
-12. Run ```php artisan queue:work``` to run queue process, eg: comment, and C U D News Logs
+12. Run ```php artisan queue:work``` to run queue process, eg: comment
 14. Finally Go to this below Postman Documentation for checking the request i've created
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/14855183-516d07da-d8c2-4c14-acd4-d962b823aebc?action=collection%2Ffork&collection-url=entityId%3D14855183-516d07da-d8c2-4c14-acd4-d962b823aebc%26entityType%3Dcollection%26workspaceId%3Df1a62a9c-d06c-4187-a13e-8327c13bd33e)
