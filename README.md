@@ -1,6 +1,6 @@
 # News Management
 
-1. Clone your project ```git clone https://gitlab.com/agusgokasi/news-management.git```
+1. Clone your project ```https://github.com/agusgokasi/laravel-simple-api-news-management.git```
 2. Go to the folder application using ```cd news-management``` or where you put the file project on your cmd or terminal
 3. Run ```composer install``` on your cmd or terminal
 4. Copy .env.example file to .env on the root folder. You can type ```copy .env.example .env``` if using command prompt Windows or cp .env.example .env if using terminal, Ubuntu ```cp .env.example .env```
